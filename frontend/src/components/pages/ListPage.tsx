@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -50,13 +50,13 @@ export default function ListPage() {
       </CardHeader>
       <CardContent>
         {resumes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-14 text-center">
+              <div className="flex flex-col items-center justify-center py-14 text-center">
             <div className="rounded-full bg-muted p-3 mb-3">
               <FileText className="h-6 w-6 text-muted-foreground/50" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">Nenhum currículo cadastrado.</p>
             <Button size="sm" asChild>
-              <Link to="/cadastro">Cadastrar</Link>
+              <Link href="/cadastro">Cadastrar</Link>
             </Button>
           </div>
         ) : (
@@ -77,7 +77,7 @@ export default function ListPage() {
                   </p>
                 </div>
                 <Button variant="outline" size="sm" className="w-full h-7 text-xs" asChild>
-                  <Link to={`/visualizar/${r.id}`}>
+                  <Link href={`/visualizar/${r.id}`}>
                     <Eye className="h-3 w-3 mr-1" /> Visualizar
                   </Link>
                 </Button>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,7 +10,7 @@ import { AlertCircle } from 'lucide-react'
 import { createResume, type ResumeFormData } from '@/services/api'
 
 export default function FormPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [form, setForm] = useState<ResumeFormData>({
     name: '', email: '', phone: '', website: '', experience: '',
   })
@@ -28,9 +28,10 @@ export default function FormPage() {
 
     try {
       await createResume(form)
-      navigate('/', { state: { success: true } })
-    } catch (err: any) {
-      setErrors(err.message.split('\n'))
+      await router.push({ pathname: '/', query: { success: '1' } })
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao cadastrar'
+      setErrors(message.split('\n'))
       setSubmitting(false)
     }
   }
@@ -89,7 +90,7 @@ export default function FormPage() {
             <Button type="submit" size="sm" disabled={submitting}>
               {submitting ? 'Salvando...' : 'Salvar'}
             </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => navigate('/')}>
+            <Button type="button" variant="outline" size="sm" onClick={() => router.push('/')}>
               Cancelar
             </Button>
           </div>

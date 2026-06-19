@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,18 +9,27 @@ import { ArrowLeft, ExternalLink, MapPin, Calendar, Briefcase, FileText } from '
 import { fetchResume, type ResumeDetail } from '@/services/api'
 
 export default function ViewPage() {
-  const { id } = useParams()
+  const router = useRouter()
+  const id = router.query.id
   const [resume, setResume] = useState<ResumeDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    if (!id) return
+    if (!router.isReady) return
+    if (!id || Array.isArray(id)) {
+      setNotFound(true)
+      setLoading(false)
+      return
+    }
+    setResume(null)
+    setNotFound(false)
+    setLoading(true)
     fetchResume(id)
       .then(setResume)
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
-  }, [id])
+  }, [id, router.isReady])
 
   if (loading) {
     return (
@@ -46,7 +56,7 @@ export default function ViewPage() {
           <FileText className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">Currículo não encontrado.</p>
           <Button variant="outline" size="sm" className="mt-4" asChild>
-            <Link to="/"><ArrowLeft className="h-3.5 w-3.5 mr-1" /> Voltar</Link>
+            <Link href="/"><ArrowLeft className="h-3.5 w-3.5 mr-1" /> Voltar</Link>
           </Button>
         </CardContent>
       </Card>
@@ -57,7 +67,7 @@ export default function ViewPage() {
     <div className="max-w-2xl mx-auto">
       <div className="mb-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/" className="text-muted-foreground">
+          <Link href="/" className="text-muted-foreground">
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar para listagem
           </Link>
         </Button>
