@@ -23,7 +23,7 @@ export interface ResumeFormData {
 }
 
 function getHeaders(): Record<string, string> {
-  const token = localStorage.getItem('token')
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   const headers: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded',
   }
