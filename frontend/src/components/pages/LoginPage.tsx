@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -35,6 +37,7 @@ export default function LoginPage() {
         return
       }
       login(data.token, data.user)
+      await router.push('/')
     } catch (err: any) {
       setError(err.error || 'Erro ao fazer login.')
       setLoading(false)
@@ -49,6 +52,7 @@ export default function LoginPage() {
     try {
       const data = await twoFactorAuthenticate(userId2FA, twoFactorCode)
       login(data.token, data.user)
+      await router.push('/')
     } catch (err: any) {
       setError(err.message || 'Código inválido.')
       setLoading(false)
@@ -114,7 +118,7 @@ export default function LoginPage() {
             </Button>
           </form>
           <p className="text-xs text-center text-muted-foreground mt-4">
-            Não tem conta? <Link to="/register" className="text-primary hover:underline">Cadastre-se</Link>
+            Não tem conta? <Link href="/register" className="text-primary hover:underline">Cadastre-se</Link>
           </p>
         </CardContent>
       </Card>

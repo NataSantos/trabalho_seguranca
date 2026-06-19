@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,7 +10,7 @@ import { AlertCircle, UserPlus } from 'lucide-react'
 import { register } from '@/services/api'
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -29,7 +30,7 @@ export default function RegisterPage() {
 
     try {
       const data = await register(email, password)
-      navigate('/verify-email', { state: { email, code: data.code } })
+      await router.push({ pathname: '/verify-email', query: { email, code: data.code } })
     } catch (err: any) {
       setError(err.message || 'Erro ao cadastrar.')
       setLoading(false)
@@ -70,7 +71,7 @@ export default function RegisterPage() {
             </Button>
           </form>
           <p className="text-xs text-center text-muted-foreground mt-4">
-            Já tem conta? <Link to="/login" className="text-primary hover:underline">Entrar</Link>
+            Já tem conta? <Link href="/login" className="text-primary hover:underline">Entrar</Link>
           </p>
         </CardContent>
       </Card>

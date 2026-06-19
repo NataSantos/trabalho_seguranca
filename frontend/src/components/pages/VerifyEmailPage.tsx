@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,13 +9,20 @@ import { AlertCircle, MailCheck } from 'lucide-react'
 import { verifyEmail } from '@/services/api'
 
 export default function VerifyEmailPage() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const email = (location.state as any)?.email || ''
-  const [code, setCode] = useState((location.state as any)?.code || '')
+  const router = useRouter()
+  const email = typeof router.query.email === 'string' ? router.query.email : ''
+  const codeParam = Array.isArray(router.query.code) ? router.query.code[0] : router.query.code
+  const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    if (!router.isReady) return
+    if (typeof codeParam === 'string') {
+      setCode(codeParam)
+    }
+  }, [router.isReady, codeParam])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -25,7 +32,7 @@ export default function VerifyEmailPage() {
     try {
       await verifyEmail(email, code)
       setSuccess(true)
-      setTimeout(() => navigate('/login'), 2000)
+      setTimeout(() => router.push('/login'), 2000)
     } catch (err: any) {
       setError(err.message || 'Código inválido.')
       setLoading(false)
