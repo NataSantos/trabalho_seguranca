@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 interface User {
   id: number
   email: string
+  name: string
   two_factor_enabled?: boolean
 }
 

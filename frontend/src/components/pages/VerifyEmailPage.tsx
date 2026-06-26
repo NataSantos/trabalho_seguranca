@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const email = (location.state as any)?.email || ''
-  const [code, setCode] = useState((location.state as any)?.code || '')
+  const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)

@@ -25,4 +25,17 @@ const schemaPath = path.resolve(__dirname, '..', 'db', 'schema.sql');
 const schema = fs.readFileSync(schemaPath, 'utf-8');
 db.exec(schema);
 
+// Migrations
+try {
+    db.exec("ALTER TABLE users ADD COLUMN reset_code TEXT");
+} catch (e) {
+    // Column already exists
+}
+
+try {
+    db.exec("ALTER TABLE users ADD COLUMN name TEXT");
+} catch (e) {
+    // Column already exists
+}
+
 module.exports = db;

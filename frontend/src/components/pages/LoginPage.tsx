@@ -113,7 +113,10 @@ export default function LoginPage() {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
-          <p className="text-xs text-center text-muted-foreground mt-4">
+          <div className="text-xs text-center mt-3">
+            <Link to="/recuperar-senha" className="text-primary hover:underline">Esqueci minha senha</Link>
+          </div>
+          <p className="text-xs text-center text-muted-foreground mt-2">
             Não tem conta? <Link to="/register" className="text-primary hover:underline">Cadastre-se</Link>
           </p>
         </CardContent>

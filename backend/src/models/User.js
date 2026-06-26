@@ -1,6 +1,8 @@
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+const PASSWORD_HISTORY_LIMIT = 5;
+
 const User = {
     findByEmail(email) {
         const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
@@ -39,6 +41,49 @@ const User = {
     enableTwoFactor(userId) {
         const stmt = db.prepare('UPDATE users SET two_factor_enabled = 1 WHERE id = ?');
         stmt.run(userId);
+    },
+
+    updatePassword(userId, newHashedPassword) {
+        const stmt = db.prepare('UPDATE users SET password = ? WHERE id = ?');
+        stmt.run(newHashedPassword, userId);
+        User.addPasswordHistory(userId, newHashedPassword);
+    },
+
+    addPasswordHistory(userId, hashedPassword) {
+        const insert = db.prepare('INSERT INTO password_history (user_id, password) VALUES (?, ?)');
+        insert.run(userId, hashedPassword);
+        const del = db.prepare(`
+            DELETE FROM password_history WHERE id IN (
+                SELECT id FROM password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT -1 OFFSET ?
+            )
+        `);
+        del.run(userId, PASSWORD_HISTORY_LIMIT);
+    },
+
+    isPasswordInHistory(userId, newPassword) {
+        const stmt = db.prepare('SELECT password FROM password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?');
+        const rows = stmt.all(userId, PASSWORD_HISTORY_LIMIT);
+        return rows.some(row => bcrypt.compareSync(newPassword, row.password));
+    },
+
+    setResetCode(userId, code) {
+        const stmt = db.prepare('UPDATE users SET reset_code = ? WHERE id = ?');
+        stmt.run(code, userId);
+    },
+
+    findByResetCode(code) {
+        const stmt = db.prepare('SELECT * FROM users WHERE reset_code = ?');
+        return stmt.get(code) || null;
+    },
+
+    clearResetCode(userId) {
+        const stmt = db.prepare('UPDATE users SET reset_code = NULL WHERE id = ?');
+        stmt.run(userId);
+    },
+
+    updateName(userId, name) {
+        const stmt = db.prepare('UPDATE users SET name = ? WHERE id = ?');
+        stmt.run(name, userId);
     }
 };
 
