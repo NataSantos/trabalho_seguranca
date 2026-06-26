@@ -103,9 +103,11 @@ export async function twoFactorAuthenticate(userId: number, code: string) {
   return json
 }
 
-export async function twoFactorSetup() {
+export async function twoFactorSetup(password: string) {
   const res = await fetch('/api/auth/2fa/setup', {
-    headers: getHeaders(),
+    method: 'POST',
+    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json.error)
@@ -123,8 +125,63 @@ export async function twoFactorVerify(code: string) {
   return json
 }
 
+export async function verifyResetCode(email: string, code: string) {
+  const res = await fetch('/api/auth/verify-reset-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json
+}
+
+export async function forgotPassword(email: string) {
+  const res = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json
+}
+
+export async function resetPassword(email: string, code: string, newPassword: string) {
+  const res = await fetch('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code, newPassword }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  const res = await fetch('/api/auth/password', {
+    method: 'PUT',
+    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json
+}
+
 export async function fetchMe() {
   const res = await fetch('/api/auth/me', { headers: getHeaders() })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json
+}
+
+export async function updateProfile(name: string) {
+  const res = await fetch('/api/auth/profile', {
+    method: 'PUT',
+    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
   const json = await res.json()
   if (!res.ok) throw new Error(json.error)
   return json

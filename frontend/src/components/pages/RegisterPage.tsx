@@ -28,9 +28,20 @@ export default function RegisterPage() {
       return
     }
 
+    if (password.length < 6 || !/[A-Z]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Senha deve ter no mínimo 6 caracteres, uma letra maiúscula e um caractere especial.')
+      setLoading(false)
+      return
+    }
+
     try {
+<<<<<<< HEAD
       const data = await register(email, password)
       await router.push({ pathname: '/verify-email', query: { email, code: data.code } })
+=======
+      await register(email, password)
+      navigate('/verify-email', { state: { email } })
+>>>>>>> refs/remotes/origin/main
     } catch (err: any) {
       setError(err.message || 'Erro ao cadastrar.')
       setLoading(false)
@@ -59,7 +70,7 @@ export default function RegisterPage() {
               <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} className="h-8 text-sm" required />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs">Senha (mín. 6 caracteres)</Label>
+              <Label htmlFor="password" className="text-xs">Senha (mín. 6 caracteres, 1 maiúscula, 1 especial)</Label>
               <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} className="h-8 text-sm" minLength={6} required />
             </div>
             <div className="space-y-1.5">
