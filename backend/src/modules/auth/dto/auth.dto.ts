@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { sanitize } from '../../../common/validation/sanitize';
 
 const EmailSchema = z
   .string()
@@ -10,7 +11,10 @@ const EmailSchema = z
 
 export const RegisterSchema = z.object({
   email: EmailSchema,
-  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres.'),
+  password: z
+    .string()
+    .min(6, 'Senha deve ter no mínimo 6 caracteres.')
+    .max(128, 'Senha deve ter no máximo 128 caracteres.'),
 });
 
 export class RegisterDto extends createZodDto(RegisterSchema) {}
@@ -68,14 +72,18 @@ export const ResetPasswordSchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Código de recuperação inválido.'),
   newPassword: z
     .string()
-    .min(6, 'Nova senha deve ter no mínimo 6 caracteres.'),
+    .min(6, 'Nova senha deve ter no mínimo 6 caracteres.')
+    .max(128, 'Nova senha deve ter no máximo 128 caracteres.'),
 });
 
 export class ResetPasswordDto extends createZodDto(ResetPasswordSchema) {}
 
 export const ChangePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Senha atual é obrigatória.'),
-  newPassword: z.string().min(6, 'Nova senha deve ter no mínimo 6 caracteres.'),
+  newPassword: z
+    .string()
+    .min(6, 'Nova senha deve ter no mínimo 6 caracteres.')
+    .max(128, 'Nova senha deve ter no máximo 128 caracteres.'),
 });
 
 export class ChangePasswordDto extends createZodDto(ChangePasswordSchema) {}
@@ -85,7 +93,8 @@ export const UpdateProfileSchema = z.object({
     .string()
     .trim()
     .min(1, 'Nome é obrigatório.')
-    .max(100, 'Nome deve ter no máximo 100 caracteres.'),
+    .max(100, 'Nome deve ter no máximo 100 caracteres.')
+    .transform(sanitize),
 });
 
 export class UpdateProfileDto extends createZodDto(UpdateProfileSchema) {}

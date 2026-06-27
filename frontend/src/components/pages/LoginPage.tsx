@@ -36,7 +36,7 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      login(data.token, data.user)
+      login(data.user)
       await router.push('/')
     } catch (err: any) {
       setError(err.error || 'Erro ao fazer login.')
@@ -51,7 +51,7 @@ export default function LoginPage() {
 
     try {
       const data = await twoFactorAuthenticate(userId2FA, twoFactorCode)
-      login(data.token, data.user)
+      login(data.user)
       await router.push('/')
     } catch (err: any) {
       setError(err.message || 'Código inválido.')

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { fetchMe } from '@/services/api'
 
 interface User {
   id: number
@@ -9,15 +10,13 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  token: string | null
   loading: boolean
-  login: (token: string, user: User) => void
+  login: (user: User) => void
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  token: null,
   loading: true,
   login: () => {},
   logout: () => {},
@@ -25,7 +24,6 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -34,31 +32,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const savedToken = localStorage.getItem('token')
-    const savedUser = localStorage.getItem('user')
-    if (savedToken && savedUser) {
-      setToken(savedToken)
-      setUser(JSON.parse(savedUser))
-    }
-    setLoading(false)
+    // Validate session via httpOnly cookie — no token in localStorage
+    fetchMe()
+      .then((data) => {
+        setUser(data)
+      })
+      .catch(() => {
+        setUser(null)
+      })
+      .finally(() => setLoading(false))
   }, [])
 
-  function login(newToken: string, newUser: User) {
-    setToken(newToken)
+  function login(newUser: User) {
     setUser(newUser)
-    localStorage.setItem('token', newToken)
-    localStorage.setItem('user', JSON.stringify(newUser))
   }
 
-  function logout() {
-    setToken(null)
+  async function logout() {
     setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    // Clear the httpOnly cookie by calling an endpoint that removes it
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {})
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

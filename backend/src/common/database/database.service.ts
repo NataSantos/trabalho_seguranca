@@ -25,6 +25,9 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT,
   email_verified INTEGER DEFAULT 0,
   email_verification_code TEXT,
+  email_verification_expires INTEGER,
+  login_attempts INTEGER NOT NULL DEFAULT 0,
+  locked_until INTEGER,
   reset_password_code TEXT,
   reset_password_expires INTEGER,
   two_factor_secret TEXT,
@@ -59,8 +62,40 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     this.db = drizzle(this.sqlite, { schema });
   }
 
+  private columnExists(table: string, column: string): boolean {
+    const info = this.sqlite
+      .prepare(`PRAGMA table_info(${table})`)
+      .all() as Array<{ name: string }>;
+    return info.some((col) => col.name === column);
+  }
+
+  private runMigration() {
+    const migrations: string[] = [];
+
+    if (!this.columnExists('users', 'email_verification_expires')) {
+      migrations.push(
+        'ALTER TABLE users ADD COLUMN email_verification_expires INTEGER;',
+      );
+    }
+    if (!this.columnExists('users', 'login_attempts')) {
+      migrations.push(
+        'ALTER TABLE users ADD COLUMN login_attempts INTEGER NOT NULL DEFAULT 0;',
+      );
+    }
+    if (!this.columnExists('users', 'locked_until')) {
+      migrations.push(
+        'ALTER TABLE users ADD COLUMN locked_until INTEGER;',
+      );
+    }
+
+    for (const sql of migrations) {
+      this.sqlite.exec(sql);
+    }
+  }
+
   onModuleInit() {
     this.sqlite.exec(SCHEMA_SQL);
+    this.runMigration();
   }
 
   onModuleDestroy() {

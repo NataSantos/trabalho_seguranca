@@ -24,7 +24,7 @@ export class VerifyEmailUseCase {
 
     if (!ok) {
       throw new BadRequestException({
-        error: 'Código de verificação inválido.',
+        error: 'Código de verificação inválido ou expirado.',
       });
     }
 

@@ -12,6 +12,8 @@ export interface UserRepository {
   findById(id: number): UserRow | null;
   create(email: string, password: string): CreateUserResult;
   verifyEmail(email: string, code: string): boolean;
+  incrementLoginAttempts(userId: number): void;
+  resetLoginAttempts(userId: number): void;
   setTwoFactorSecret(userId: number, secret: string): void;
   enableTwoFactor(userId: number): void;
   setResetPasswordCode(email: string, code: string, expiresAt: number): void;

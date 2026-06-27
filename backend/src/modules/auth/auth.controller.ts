@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { UnauthorizedException } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { JwtPayload } from '../../common/services/jwt-token.service';
 import {
@@ -63,19 +73,44 @@ export class AuthController {
     return this.registerUseCase.execute(body);
   }
 
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post('verify-email')
   verifyEmail(@Body() body: VerifyEmailDto) {
     return this.verifyEmailUseCase.execute(body);
   }
 
+  private setAuthCookie(response: Response, token: string) {
+    response.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api',
+      maxAge: 2 * 60 * 60 * 1000, // 2 hours (matches JWT expiry)
+    });
+  }
+
   @Post('login')
-  login(@Body() body: LoginDto) {
-    return this.loginUseCase.execute(body);
+  login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = this.loginUseCase.execute(body);
+    if (result.token) {
+      this.setAuthCookie(response, result.token);
+    }
+    return result;
   }
 
   @Post('2fa/authenticate')
-  twoFactorAuthenticate(@Body() body: TwoFactorAuthenticateDto) {
-    return this.twoFactorAuthenticateUseCase.execute(body);
+  twoFactorAuthenticate(
+    @Body() body: TwoFactorAuthenticateDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = this.twoFactorAuthenticateUseCase.execute(body);
+    if (result.token) {
+      this.setAuthCookie(response, result.token);
+    }
+    return result;
   }
 
   @Post('2fa/setup')
@@ -136,15 +171,27 @@ export class AuthController {
     });
   }
 
+  @Post('logout')
+  logout(@Res({ passthrough: true }) response: Response) {
+    response.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/api',
+    });
+    return { message: 'Sessão encerrada.' };
+  }
+
   @Put('profile')
   @UseGuards(JwtAuthGuard)
   updateProfile(
     @Req() request: AuthenticatedRequest,
     @Body() body: UpdateProfileDto,
   ) {
+    const profileName: string = body.name as string;
     return this.updateProfileUseCase.execute({
       userId: this.getUserId(request),
-      name: body.name,
+      name: profileName,
     });
   }
 }

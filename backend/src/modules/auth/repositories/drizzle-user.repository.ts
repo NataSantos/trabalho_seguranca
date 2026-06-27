@@ -36,6 +36,7 @@ export class DrizzleUserRepository implements UserRepository {
         email,
         password: hashedPassword,
         emailVerificationCode: code,
+        emailVerificationExpires: Date.now() + 30 * 60 * 1000, // 30 minutes
       })
       .run();
 
@@ -45,17 +46,58 @@ export class DrizzleUserRepository implements UserRepository {
   verifyEmail(email: string, code: string) {
     const user = this.findByEmail(email);
 
-    if (!user || user.emailVerificationCode !== code) {
+    if (
+      !user ||
+      user.emailVerificationCode !== code ||
+      !user.emailVerificationExpires ||
+      Date.now() > user.emailVerificationExpires
+    ) {
       return false;
     }
 
     this.db
       .update(users)
-      .set({ emailVerified: true, emailVerificationCode: null })
+      .set({
+        emailVerified: true,
+        emailVerificationCode: null,
+        emailVerificationExpires: null,
+      })
       .where(eq(users.id, user.id))
       .run();
 
     return true;
+  }
+
+  incrementLoginAttempts(userId: number) {
+    const user = this.findById(userId);
+    if (!user) return;
+
+    const attempts = (user.loginAttempts ?? 0) + 1;
+
+    if (attempts >= 5) {
+      this.db
+        .update(users)
+        .set({
+          loginAttempts: attempts,
+          lockedUntil: Date.now() + 15 * 60 * 1000, // 15 minutes
+        })
+        .where(eq(users.id, userId))
+        .run();
+    } else {
+      this.db
+        .update(users)
+        .set({ loginAttempts: attempts })
+        .where(eq(users.id, userId))
+        .run();
+    }
+  }
+
+  resetLoginAttempts(userId: number) {
+    this.db
+      .update(users)
+      .set({ loginAttempts: 0, lockedUntil: null })
+      .where(eq(users.id, userId))
+      .run();
   }
 
   setTwoFactorSecret(userId: number, secret: string) {

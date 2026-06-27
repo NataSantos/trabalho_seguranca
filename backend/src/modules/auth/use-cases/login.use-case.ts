@@ -27,9 +27,21 @@ export class LoginUseCase {
     const email = input.email.trim().toLowerCase();
     const user = this.userRepository.findByEmail(email);
 
+    if (user && user.lockedUntil && Date.now() < user.lockedUntil) {
+      throw new UnauthorizedException({
+        error:
+          'Conta temporariamente bloqueada por múltiplas tentativas. Tente novamente em alguns minutos.',
+      });
+    }
+
     if (!user || !bcrypt.compareSync(input.password, user.password)) {
+      if (user) {
+        this.userRepository.incrementLoginAttempts(user.id);
+      }
       throw new UnauthorizedException({ error: 'E-mail ou senha inválidos.' });
     }
+
+    this.userRepository.resetLoginAttempts(user.id);
 
     if (!user.emailVerified) {
       throw new ForbiddenException({

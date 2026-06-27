@@ -16,7 +16,7 @@ const navItems = [
 
 function ShellContent({ children }: { children: ReactNode }) {
   const router = useRouter()
-  const { user, token, loading, logout } = useAuth()
+  const { user, loading, logout } = useAuth()
 
   const publicRoutes = ['/login', '/register', '/verify-email']
   const isPublicRoute = publicRoutes.includes(router.pathname)
@@ -37,14 +37,14 @@ function ShellContent({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!router.isReady) return
-    if (token && isPublicRoute) {
+    if (user && isPublicRoute) {
       void router.replace('/')
     }
-  }, [router.isReady, token, isPublicRoute])
+  }, [router.isReady, user, isPublicRoute])
 
   if (loading) return null
 
-  if (!token && !isPublicRoute) {
+  if (!user && !isPublicRoute) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/60">
         <Toaster richColors closeButton />
@@ -53,7 +53,7 @@ function ShellContent({ children }: { children: ReactNode }) {
     )
   }
 
-  if (!token && isPublicRoute) {
+  if (!user && isPublicRoute) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/60">
         <Toaster richColors closeButton />
@@ -62,7 +62,7 @@ function ShellContent({ children }: { children: ReactNode }) {
     )
   }
 
-  if (token && isPublicRoute) {
+  if (user && isPublicRoute) {
     return null
   }
 

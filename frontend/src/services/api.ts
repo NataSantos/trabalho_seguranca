@@ -22,34 +22,43 @@ export interface ResumeFormData {
   experience: string
 }
 
-function getHeaders(): Record<string, string> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  return headers
+/**
+ * Auth cookie (httpOnly) is sent automatically by the browser
+ * when credentials: 'include' is set. No need to manually attach
+ * Authorization headers — this prevents XSS from stealing the token.
+ */
+const API_BASE = '/api'
+
+async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  })
+  return res
 }
 
 export async function fetchResumes(): Promise<ResumeListItem[]> {
-  const res = await fetch('/api/resumes', { headers: getHeaders() })
+  const res = await apiFetch('/resumes')
   if (res.status === 401) throw new Error('unauthorized')
   if (!res.ok) throw new Error('Erro ao carregar currículos')
   return res.json()
 }
 
 export async function fetchResume(id: number | string): Promise<ResumeDetail> {
-  const res = await fetch(`/api/resumes/${id}`, { headers: getHeaders() })
+  const res = await apiFetch(`/resumes/${id}`)
   if (res.status === 401) throw new Error('unauthorized')
   if (!res.ok) throw new Error('Currículo não encontrado')
   return res.json()
 }
 
 export async function createResume(data: ResumeFormData): Promise<{ id: number }> {
-  const res = await fetch('/api/resumes', {
+  const res = await apiFetch('/resumes', {
     method: 'POST',
-    headers: getHeaders(),
-    body: new URLSearchParams(data as unknown as Record<string, string>),
+    body: JSON.stringify(data),
   })
   if (res.status === 401) throw new Error('unauthorized')
   const json = await res.json()
@@ -60,9 +69,8 @@ export async function createResume(data: ResumeFormData): Promise<{ id: number }
 // --- Auth ---
 
 export async function register(email: string, password: string) {
-  const res = await fetch('/api/auth/register', {
+  const res = await apiFetch('/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
   const json = await res.json()
@@ -71,9 +79,8 @@ export async function register(email: string, password: string) {
 }
 
 export async function verifyEmail(email: string, code: string) {
-  const res = await fetch('/api/auth/verify-email', {
+  const res = await apiFetch('/auth/verify-email', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, code }),
   })
   const json = await res.json()
@@ -82,9 +89,8 @@ export async function verifyEmail(email: string, code: string) {
 }
 
 export async function login(email: string, password: string) {
-  const res = await fetch('/api/auth/login', {
+  const res = await apiFetch('/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
   const json = await res.json()
@@ -93,9 +99,8 @@ export async function login(email: string, password: string) {
 }
 
 export async function twoFactorAuthenticate(userId: number, code: string) {
-  const res = await fetch('/api/auth/2fa/authenticate', {
+  const res = await apiFetch('/auth/2fa/authenticate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId, code }),
   })
   const json = await res.json()
@@ -104,9 +109,8 @@ export async function twoFactorAuthenticate(userId: number, code: string) {
 }
 
 export async function twoFactorSetup(password: string) {
-  const res = await fetch('/api/auth/2fa/setup', {
+  const res = await apiFetch('/auth/2fa/setup', {
     method: 'POST',
-    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
   })
   const json = await res.json()
@@ -115,9 +119,8 @@ export async function twoFactorSetup(password: string) {
 }
 
 export async function twoFactorVerify(code: string) {
-  const res = await fetch('/api/auth/2fa/verify', {
+  const res = await apiFetch('/auth/2fa/verify', {
     method: 'POST',
-    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ code }),
   })
   const json = await res.json()
@@ -126,9 +129,8 @@ export async function twoFactorVerify(code: string) {
 }
 
 export async function verifyResetCode(email: string, code: string) {
-  const res = await fetch('/api/auth/verify-reset-code', {
+  const res = await apiFetch('/auth/verify-reset-code', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, code }),
   })
   const json = await res.json()
@@ -137,9 +139,8 @@ export async function verifyResetCode(email: string, code: string) {
 }
 
 export async function forgotPassword(email: string) {
-  const res = await fetch('/api/auth/forgot-password', {
+  const res = await apiFetch('/auth/forgot-password', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
   const json = await res.json()
@@ -148,9 +149,8 @@ export async function forgotPassword(email: string) {
 }
 
 export async function resetPassword(email: string, code: string, newPassword: string) {
-  const res = await fetch('/api/auth/reset-password', {
+  const res = await apiFetch('/auth/reset-password', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, code, newPassword }),
   })
   const json = await res.json()
@@ -159,9 +159,8 @@ export async function resetPassword(email: string, code: string, newPassword: st
 }
 
 export async function changePassword(currentPassword: string, newPassword: string) {
-  const res = await fetch('/api/auth/password', {
+  const res = await apiFetch('/auth/password', {
     method: 'PUT',
-    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ currentPassword, newPassword }),
   })
   const json = await res.json()
@@ -170,16 +169,15 @@ export async function changePassword(currentPassword: string, newPassword: strin
 }
 
 export async function fetchMe() {
-  const res = await fetch('/api/auth/me', { headers: getHeaders() })
+  const res = await apiFetch('/auth/me')
   const json = await res.json()
   if (!res.ok) throw new Error(json.error)
   return json
 }
 
 export async function updateProfile(name: string) {
-  const res = await fetch('/api/auth/profile', {
+  const res = await apiFetch('/auth/profile', {
     method: 'PUT',
-    headers: { ...getHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ name }),
   })
   const json = await res.json()

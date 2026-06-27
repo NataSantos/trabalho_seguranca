@@ -23,6 +23,9 @@ export const users = sqliteTable('users', {
     .notNull()
     .default(false),
   emailVerificationCode: text('email_verification_code'),
+  emailVerificationExpires: integer('email_verification_expires'),
+  loginAttempts: integer('login_attempts').notNull().default(0),
+  lockedUntil: integer('locked_until'),
   resetPasswordCode: text('reset_password_code'),
   resetPasswordExpires: integer('reset_password_expires'),
   twoFactorSecret: text('two_factor_secret'),
