@@ -73,4 +73,45 @@ export class DrizzleUserRepository implements UserRepository {
       .where(eq(users.id, userId))
       .run();
   }
+
+  setResetPasswordCode(email: string, code: string, expiresAt: number) {
+    this.db
+      .update(users)
+      .set({ resetPasswordCode: code, resetPasswordExpires: expiresAt })
+      .where(eq(users.email, email))
+      .run();
+  }
+
+  verifyResetPasswordCode(email: string, code: string) {
+    const user = this.findByEmail(email);
+    if (
+      !user ||
+      user.resetPasswordCode !== code ||
+      !user.resetPasswordExpires ||
+      Date.now() > user.resetPasswordExpires
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  updatePassword(userId: number, hashedPassword: string) {
+    this.db
+      .update(users)
+      .set({
+        password: hashedPassword,
+        resetPasswordCode: null,
+        resetPasswordExpires: null,
+      })
+      .where(eq(users.id, userId))
+      .run();
+  }
+
+  updateProfile(userId: number, name: string) {
+    this.db
+      .update(users)
+      .set({ name })
+      .where(eq(users.id, userId))
+      .run();
+  }
 }

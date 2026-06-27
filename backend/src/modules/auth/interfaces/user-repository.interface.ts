@@ -14,4 +14,8 @@ export interface UserRepository {
   verifyEmail(email: string, code: string): boolean;
   setTwoFactorSecret(userId: number, secret: string): void;
   enableTwoFactor(userId: number): void;
+  setResetPasswordCode(email: string, code: string, expiresAt: number): void;
+  verifyResetPasswordCode(email: string, code: string): boolean;
+  updatePassword(userId: number, hashedPassword: string): void;
+  updateProfile(userId: number, name: string): void;
 }

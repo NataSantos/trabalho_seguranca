@@ -22,8 +22,11 @@ CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
+  name TEXT,
   email_verified INTEGER DEFAULT 0,
   email_verification_code TEXT,
+  reset_password_code TEXT,
+  reset_password_expires INTEGER,
   two_factor_secret TEXT,
   two_factor_enabled INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -18,10 +18,13 @@ export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
+  name: text('name'),
   emailVerified: integer('email_verified', { mode: 'boolean' })
     .notNull()
     .default(false),
   emailVerificationCode: text('email_verification_code'),
+  resetPasswordCode: text('reset_password_code'),
+  resetPasswordExpires: integer('reset_password_expires'),
   twoFactorSecret: text('two_factor_secret'),
   twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' })
     .notNull()

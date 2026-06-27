@@ -25,6 +25,7 @@ export class MeUseCase {
     return {
       id: user.id,
       email: user.email,
+      name: user.name ?? null,
       two_factor_enabled: Boolean(user.twoFactorEnabled),
     };
   }

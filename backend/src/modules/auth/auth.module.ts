@@ -6,13 +6,18 @@ import { SecurityModule } from '../../common/security/security.module';
 import { AuthController } from './auth.controller';
 import { USER_REPOSITORY } from './interfaces/user-repository.interface';
 import { DrizzleUserRepository } from './repositories/drizzle-user.repository';
+import { ChangePasswordUseCase } from './use-cases/change-password.use-case';
+import { ForgotPasswordUseCase } from './use-cases/forgot-password.use-case';
 import { LoginUseCase } from './use-cases/login.use-case';
 import { MeUseCase } from './use-cases/me.use-case';
 import { RegisterUseCase } from './use-cases/register.use-case';
+import { ResetPasswordUseCase } from './use-cases/reset-password.use-case';
 import { TwoFactorAuthenticateUseCase } from './use-cases/two-factor-authenticate.use-case';
 import { TwoFactorSetupUseCase } from './use-cases/two-factor-setup.use-case';
 import { TwoFactorVerifyUseCase } from './use-cases/two-factor-verify.use-case';
+import { UpdateProfileUseCase } from './use-cases/update-profile.use-case';
 import { VerifyEmailUseCase } from './use-cases/verify-email.use-case';
+import { VerifyResetCodeUseCase } from './use-cases/verify-reset-code.use-case';
 
 @Module({
   imports: [DatabaseModule, SecurityModule],
@@ -27,6 +32,11 @@ import { VerifyEmailUseCase } from './use-cases/verify-email.use-case';
     TwoFactorSetupUseCase,
     TwoFactorVerifyUseCase,
     MeUseCase,
+    ForgotPasswordUseCase,
+    VerifyResetCodeUseCase,
+    ResetPasswordUseCase,
+    ChangePasswordUseCase,
+    UpdateProfileUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: DrizzleUserRepository,
