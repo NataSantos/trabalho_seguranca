@@ -117,16 +117,14 @@ export default function LoginPage() {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
-<<<<<<< HEAD
           <p className="text-xs text-center text-muted-foreground mt-4">
             Não tem conta? <Link href="/register" className="text-primary hover:underline">Cadastre-se</Link>
-=======
+          </p>
           <div className="text-xs text-center mt-3">
-            <Link to="/recuperar-senha" className="text-primary hover:underline">Esqueci minha senha</Link>
+            <Link href="/recuperar-senha" className="text-primary hover:underline">Esqueci minha senha</Link>
           </div>
           <p className="text-xs text-center text-muted-foreground mt-2">
-            Não tem conta? <Link to="/register" className="text-primary hover:underline">Cadastre-se</Link>
->>>>>>> refs/remotes/origin/main
+            Não tem conta? <Link href="/register" className="text-primary hover:underline">Cadastre-se</Link>
           </p>
         </CardContent>
       </Card>

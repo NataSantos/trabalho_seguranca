@@ -9,15 +9,9 @@ import { AlertCircle, MailCheck } from 'lucide-react'
 import { verifyEmail } from '@/services/api'
 
 export default function VerifyEmailPage() {
-<<<<<<< HEAD
   const router = useRouter()
   const email = typeof router.query.email === 'string' ? router.query.email : ''
   const codeParam = Array.isArray(router.query.code) ? router.query.code[0] : router.query.code
-=======
-  const location = useLocation()
-  const navigate = useNavigate()
-  const email = (location.state as any)?.email || ''
->>>>>>> refs/remotes/origin/main
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)

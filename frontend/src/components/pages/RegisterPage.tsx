@@ -35,13 +35,8 @@ export default function RegisterPage() {
     }
 
     try {
-<<<<<<< HEAD
       const data = await register(email, password)
       await router.push({ pathname: '/verify-email', query: { email, code: data.code } })
-=======
-      await register(email, password)
-      navigate('/verify-email', { state: { email } })
->>>>>>> refs/remotes/origin/main
     } catch (err: any) {
       setError(err.message || 'Erro ao cadastrar.')
       setLoading(false)

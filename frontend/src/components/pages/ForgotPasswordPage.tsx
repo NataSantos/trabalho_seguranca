@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center py-4">
               <p className="text-sm text-emerald-600 font-medium">Senha redefinida com sucesso!</p>
               <p className="text-xs text-muted-foreground mt-1">
-                <Link to="/login" className="text-primary hover:underline">Voltar para o login</Link>
+                <Link href="/login" className="text-primary hover:underline">Voltar para o login</Link>
               </p>
             </div>
           ) : step === 'email' ? (
@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
                 </Button>
               </form>
               <p className="text-xs text-center text-muted-foreground mt-4">
-                <Link to="/login" className="text-primary hover:underline">Voltar para o login</Link>
+                <Link href="/login" className="text-primary hover:underline">Voltar para o login</Link>
               </p>
             </>
           ) : step === 'code' ? (

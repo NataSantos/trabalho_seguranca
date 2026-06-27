@@ -2,6 +2,7 @@
   "name": "curriculo-frontend",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@11.1.2",
   "type": "module",
   "scripts": {
     "dev": "next dev -p 5173",

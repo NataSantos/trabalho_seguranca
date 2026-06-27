@@ -7,3 +7,8 @@ backend/data/
 .vite/
 tsconfig.tsbuildinfo
 .next/
+# SQLite database
+backend/db/
+
+# Playwright MCP
+.playwright-mcp/
