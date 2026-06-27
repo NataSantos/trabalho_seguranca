@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { mkdirSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { resolveDatabaseDirectory, resolveDatabasePath } from './database-path';
 import { schema } from './schema';
 
 const SCHEMA_SQL = `
@@ -43,16 +43,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly db: ReturnType<typeof drizzle>;
 
   constructor(configService: ConfigService) {
-    const configuredDir = configService.get<string>('DB_DIR') ?? 'data';
-    const dataDir = isAbsolute(configuredDir)
-      ? configuredDir
-      : join(process.cwd(), configuredDir);
-    mkdirSync(dataDir, { recursive: true });
-
-    const dbPath = join(
-      dataDir,
-      configService.get<string>('DB_FILE') ?? 'curriculos.db',
+    const dbPath = resolveDatabasePath(
+      process.cwd(),
+      configService.get<string>('DB_DIR'),
+      configService.get<string>('DB_FILE'),
     );
+    mkdirSync(resolveDatabaseDirectory(dbPath), { recursive: true });
     this.sqlite = new Database(dbPath);
     this.sqlite.pragma('journal_mode = WAL');
     this.sqlite.pragma('foreign_keys = ON');
