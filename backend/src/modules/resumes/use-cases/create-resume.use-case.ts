@@ -10,6 +10,7 @@ export interface CreateResumeInput {
   email: string;
   website: string;
   experience: string;
+  userId: number;
 }
 
 @Injectable()
@@ -26,6 +27,7 @@ export class CreateResumeUseCase {
       email: input.email.trim().toLowerCase(),
       website: input.website.trim() ? input.website.trim() : null,
       experience: input.experience.trim(),
+      userId: input.userId,
     });
 
     return { id };

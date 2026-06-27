@@ -7,6 +7,7 @@ import {
   LoginDto,
   RegisterDto,
   TwoFactorAuthenticateDto,
+  TwoFactorSetupDto,
   TwoFactorVerifyDto,
   VerifyEmailDto,
 } from './dto/auth.dto';
@@ -62,11 +63,15 @@ export class AuthController {
     return this.twoFactorAuthenticateUseCase.execute(body);
   }
 
-  @Get('2fa/setup')
+  @Post('2fa/setup')
   @UseGuards(JwtAuthGuard)
-  twoFactorSetup(@Req() request: AuthenticatedRequest) {
+  twoFactorSetup(
+    @Req() request: AuthenticatedRequest,
+    @Body() body: TwoFactorSetupDto,
+  ) {
     return this.twoFactorSetupUseCase.execute({
       userId: this.getUserId(request),
+      password: body.password,
     });
   }
 

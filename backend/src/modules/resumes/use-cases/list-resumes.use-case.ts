@@ -11,7 +11,7 @@ export class ListResumesUseCase {
     private readonly resumeRepository: ResumeRepository,
   ) {}
 
-  execute() {
-    return this.resumeRepository.findAll();
+  execute(userId: number) {
+    return this.resumeRepository.findAll(userId);
   }
 }

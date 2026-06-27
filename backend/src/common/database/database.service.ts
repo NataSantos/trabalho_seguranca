@@ -9,6 +9,7 @@ import { schema } from './schema';
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS resumes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
   name TEXT NOT NULL,
   phone TEXT,
   email TEXT NOT NULL,

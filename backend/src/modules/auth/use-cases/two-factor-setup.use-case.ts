@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import bcrypt from 'bcryptjs';
 import {
   USER_REPOSITORY,
   type UserRepository,
@@ -7,6 +13,7 @@ import { TwoFactorService } from '../../../common/services/two-factor.service';
 
 export interface TwoFactorSetupInput {
   userId: number;
+  password: string;
 }
 
 @Injectable()
@@ -23,6 +30,11 @@ export class TwoFactorSetupUseCase {
       throw new NotFoundException({ error: 'Usuário não encontrado.' });
     }
 
+    const passwordValid = await bcrypt.compare(input.password, user.password);
+    if (!passwordValid) {
+      throw new UnauthorizedException({ error: 'Senha inválida.' });
+    }
+
     const secret =
       user.twoFactorSecret && !user.twoFactorEnabled
         ? user.twoFactorSecret
@@ -33,7 +45,6 @@ export class TwoFactorSetupUseCase {
     }
 
     return {
-      secret,
       qrcode: await this.twoFactorService.generateQrCode(secret, user.email),
     };
   }

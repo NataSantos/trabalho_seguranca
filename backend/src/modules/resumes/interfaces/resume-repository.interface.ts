@@ -8,10 +8,11 @@ export interface CreateResumeInput {
   email: string;
   website: string | null;
   experience: string;
+  userId: number;
 }
 
 export interface ResumeRepository {
-  findAll(): Array<Pick<ResumeRow, 'id' | 'name' | 'email'>>;
-  findById(id: number): ResumeRow | null;
+  findAll(userId: number): Array<Pick<ResumeRow, 'id' | 'name' | 'email'>>;
+  findById(id: number, userId: number): ResumeRow | null;
   create(data: CreateResumeInput): number;
 }

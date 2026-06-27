@@ -99,7 +99,7 @@ export default function ViewPage() {
 
         <CardContent className="p-6 space-y-6">
           {/* Website */}
-          {resume.website && (
+          {resume.website && /^https?:\/\//.test(resume.website) && (
             <div>
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Website</h3>
               <a

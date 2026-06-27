@@ -1,7 +1,12 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
-const EmailSchema = z.string().trim().email('E-mail inválido.');
+const EmailSchema = z
+  .string()
+  .trim()
+  .min(1, 'E-mail é obrigatório.')
+  .max(255, 'E-mail deve ter no máximo 255 caracteres.')
+  .email('E-mail inválido.');
 
 export const RegisterSchema = z.object({
   email: EmailSchema,
@@ -38,3 +43,9 @@ export const TwoFactorVerifySchema = z.object({
 });
 
 export class TwoFactorVerifyDto extends createZodDto(TwoFactorVerifySchema) {}
+
+export const TwoFactorSetupSchema = z.object({
+  password: z.string().min(1, 'Senha é obrigatória.'),
+});
+
+export class TwoFactorSetupDto extends createZodDto(TwoFactorSetupSchema) {}

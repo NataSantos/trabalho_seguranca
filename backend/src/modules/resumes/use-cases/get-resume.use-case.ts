@@ -11,8 +11,8 @@ export class GetResumeUseCase {
     private readonly resumeRepository: ResumeRepository,
   ) {}
 
-  execute(id: number) {
-    const resume = this.resumeRepository.findById(id);
+  execute(id: number, userId: number) {
+    const resume = this.resumeRepository.findById(id, userId);
 
     if (!resume) {
       throw new NotFoundException({ error: 'Currículo não encontrado.' });

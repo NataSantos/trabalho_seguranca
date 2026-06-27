@@ -9,7 +9,14 @@ export class ResumeIdDto extends createZodDto(ResumeIdSchema) {}
 
 const optionalUrl = z.union([
   z.literal(''),
-  z.string().trim().url('Informe uma URL válida (ex: https://exemplo.com).'),
+  z
+    .string()
+    .trim()
+    .url('Informe uma URL válida (ex: https://exemplo.com).')
+    .refine(
+      (url) => url.startsWith('http://') || url.startsWith('https://'),
+      { message: 'URL deve começar com http:// ou https://.' },
+    ),
 ]);
 
 const optionalPhone = z.union([

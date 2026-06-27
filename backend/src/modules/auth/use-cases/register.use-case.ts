@@ -25,12 +25,11 @@ export class RegisterUseCase {
       throw new ConflictException({ error: 'E-mail já cadastrado.' });
     }
 
-    const { id, code } = this.userRepository.create(email, input.password);
+    const { id } = this.userRepository.create(email, input.password);
 
     return {
       id,
       message: 'Cadastro realizado! Verifique seu e-mail com o código enviado.',
-      code,
     };
   }
 }

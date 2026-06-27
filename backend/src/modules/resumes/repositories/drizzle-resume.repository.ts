@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { DatabaseService } from '../../../common/database/database.service';
 import { resumes } from '../../../common/database/schema';
 import {
@@ -15,17 +15,22 @@ export class DrizzleResumeRepository implements ResumeRepository {
     return this.databaseService.connection;
   }
 
-  findAll() {
+  findAll(userId: number) {
     return this.db
       .select({ id: resumes.id, name: resumes.name, email: resumes.email })
       .from(resumes)
+      .where(eq(resumes.userId, userId))
       .orderBy(asc(resumes.id))
       .all();
   }
 
-  findById(id: number) {
+  findById(id: number, userId: number) {
     return (
-      this.db.select().from(resumes).where(eq(resumes.id, id)).get() ?? null
+      this.db
+        .select()
+        .from(resumes)
+        .where(and(eq(resumes.id, id), eq(resumes.userId, userId)))
+        .get() ?? null
     );
   }
 
